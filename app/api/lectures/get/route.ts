@@ -4,9 +4,31 @@ import { db } from '@/lib/db';
 export async function GET(req: Request) {
   try {
     const { searchParams } = new URL(req.url);
+    const id = searchParams.get('id');
     const subject = searchParams.get('subject');
     const minPrice = searchParams.get('minPrice');
     const maxPrice = searchParams.get('maxPrice');
+
+    if (id) {
+      // Fetch a single lecture by id, including tutor
+      const lecture = await db.lecture.findUnique({
+        where: { id },
+        include: {
+          tutor: {
+            select: {
+              name: true,
+              university: true,
+              major: true,
+              bio: true,
+            },
+          },
+        },
+      });
+      if (!lecture) {
+        return NextResponse.json({ error: 'Lecture not found' }, { status: 404 });
+      }
+      return NextResponse.json(lecture);
+    }
 
     const where: any = {};
 

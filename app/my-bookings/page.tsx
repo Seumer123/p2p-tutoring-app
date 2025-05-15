@@ -56,12 +56,15 @@ export default function MyBookingsPage() {
 
   const handleCancelBooking = async (bookingId: string) => {
     try {
-      const response = await fetch(`/api/bookings/cancel/${bookingId}`, {
+      const response = await fetch(`/api/bookings/update-status/${bookingId}`, {
         method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ status: 'CANCELLED' }),
       });
 
       if (!response.ok) throw new Error('Failed to cancel booking');
-      
       // Refresh bookings after cancellation
       fetchBookings();
     } catch (err) {
@@ -140,7 +143,7 @@ export default function MyBookingsPage() {
                       </p>
                     </div>
                   </div>
-                  {booking.status === 'PENDING' && (
+                  {['PENDING', 'CONFIRMED'].includes(booking.status) && (
                     <button
                       onClick={() => handleCancelBooking(booking.id)}
                       className="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700"

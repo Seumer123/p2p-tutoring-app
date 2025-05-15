@@ -3,12 +3,10 @@ import { getServerSession } from 'next-auth';
 import { db } from '@/lib/db';
 import { authOptions } from '../../../auth/[...nextauth]/route';
 
-export async function DELETE(
-  req: Request,
-  { params }: { params: { id: string } }
-) {
+export async function DELETE(req: Request, context: { params: { id: string } }) {
   try {
     const session = await getServerSession(authOptions);
+    const { id } = context.params;
 
     if (!session || !session.user?.email) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -28,7 +26,7 @@ export async function DELETE(
     // Get the lecture
     const lecture = await db.lecture.findUnique({
       where: {
-        id: params.id
+        id
       }
     });
 
@@ -41,10 +39,17 @@ export async function DELETE(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
+    // Delete all bookings for this lecture first
+    await db.booking.deleteMany({
+      where: {
+        lectureId: id
+      }
+    });
+
     // Delete the lecture
     await db.lecture.delete({
       where: {
-        id: params.id
+        id
       }
     });
 

@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useSession } from 'next-auth/react';
+import { useRouter } from 'next/navigation';
 
 interface Lecture {
   id: string;
@@ -37,6 +38,8 @@ export default function LecturesPage() {
     subject: '',
   });
   const [creating, setCreating] = useState(false);
+  const [bookingStatus, setBookingStatus] = useState<{ [lectureId: string]: string }>({});
+  const router = useRouter();
 
   useEffect(() => {
     fetchLectures();
@@ -97,6 +100,14 @@ export default function LecturesPage() {
     } finally {
       setCreating(false);
     }
+  };
+
+  const handleBookLecture = (lectureId: string) => {
+    if (!session) {
+      setBookingStatus(prev => ({ ...prev, [lectureId]: 'Please log in to book a lecture.' }));
+      return;
+    }
+    router.push(`/book/${lectureId}`);
   };
 
   return (
@@ -273,10 +284,16 @@ export default function LecturesPage() {
                 </div>
                 <div className="flex justify-between items-center">
                   <span className="text-indigo-600 font-medium">${lecture.price}/hour</span>
-                  <button className="bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700">
+                  <button
+                    className="bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700"
+                    onClick={() => handleBookLecture(lecture.id)}
+                  >
                     Book Now
                   </button>
                 </div>
+                {bookingStatus[lecture.id] && (
+                  <div className="mt-2 text-sm text-center text-indigo-700">{bookingStatus[lecture.id]}</div>
+                )}
               </div>
             ))}
           </div>
