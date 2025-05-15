@@ -2,9 +2,12 @@
 
 import Link from 'next/link';
 import { useSession, signOut } from 'next-auth/react';
+import { useState } from 'react';
 
 export default function Navbar() {
   const { data: session, status } = useSession();
+  const [showLearnMenu, setShowLearnMenu] = useState(false);
+  const [showTeachMenu, setShowTeachMenu] = useState(false);
 
   return (
     <nav className="bg-white shadow-lg">
@@ -20,18 +23,71 @@ export default function Navbar() {
             )}
             {session && (
               <div className="hidden md:flex space-x-6">
-                <Link 
-                  href="/lectures"
-                  className="text-gray-700 hover:text-indigo-600 px-3 py-2 rounded-md text-sm font-medium"
-                >
-                  Browse Lectures
-                </Link>
-                <Link 
-                  href="/become-lecturer"
-                  className="text-gray-700 hover:text-indigo-600 px-3 py-2 rounded-md text-sm font-medium"
-                >
-                  Become a Lecturer
-                </Link>
+                {/* Learn Dropdown */}
+                <div className="relative">
+                  <button
+                    onClick={() => setShowLearnMenu(!showLearnMenu)}
+                    className="text-gray-700 hover:text-indigo-600 px-3 py-2 rounded-md text-sm font-medium flex items-center"
+                  >
+                    Learn
+                    <svg className="ml-1 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                    </svg>
+                  </button>
+                  {showLearnMenu && (
+                    <div className="absolute left-0 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5">
+                      <div className="py-1">
+                        <Link
+                          href="/lectures"
+                          className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                          onClick={() => setShowLearnMenu(false)}
+                        >
+                          Browse Lectures
+                        </Link>
+                        <Link
+                          href="/my-bookings"
+                          className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                          onClick={() => setShowLearnMenu(false)}
+                        >
+                          My Bookings
+                        </Link>
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                {/* Teach Dropdown */}
+                <div className="relative">
+                  <button
+                    onClick={() => setShowTeachMenu(!showTeachMenu)}
+                    className="text-gray-700 hover:text-indigo-600 px-3 py-2 rounded-md text-sm font-medium flex items-center"
+                  >
+                    Teach
+                    <svg className="ml-1 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                    </svg>
+                  </button>
+                  {showTeachMenu && (
+                    <div className="absolute left-0 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5">
+                      <div className="py-1">
+                        <Link
+                          href="/create-lecture"
+                          className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                          onClick={() => setShowTeachMenu(false)}
+                        >
+                          Create Lecture
+                        </Link>
+                        <Link
+                          href="/my-lectures"
+                          className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                          onClick={() => setShowTeachMenu(false)}
+                        >
+                          My Lectures
+                        </Link>
+                      </div>
+                    </div>
+                  )}
+                </div>
               </div>
             )}
           </div>
