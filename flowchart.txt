@@ -1,0 +1,29 @@
+1. User Management & Profiles
+   - User registration/login
+   - Profile creation/editing
+   - Role selection (Student/Tutor)
+
+2. Tutor Features
+   - Lecture creation
+   - Availability management
+   - Expertise/subjects management
+
+3. Student Features
+   - Lecture booking
+   - Payment processing
+   - Review/rating system
+
+4. Real-time Communication
+   - Video/audio chat
+   - Screen sharing
+   - Chat functionality
+
+5. Admin Features
+   - User verification
+   - Content moderation
+   - Analytics
+
+6. Testing & Deployment
+   - Unit testing
+   - Integration testing
+   - Deployment to production 
