@@ -39,6 +39,11 @@ model User {
   expertise     Expertise[]
   availability  Availability[]
   subjects      Subject[] @relation("UserSubjects")
+  messages      Message[]
+  contents      Content[]
+  purchases     ContentPurchase[]
+  reviewsGiven   Review[] @relation("Reviewer")
+  reviewsReceived Review[] @relation("Reviewee")
 }
 
 model Subject {
@@ -59,18 +64,21 @@ model Lecture {
   tutorId     String
   tutor       User      @relation(fields: [tutorId], references: [id])
   bookings    Booking[]
+  reviews     Review[]
 }
 
 model Booking {
-  id        String   @id @default(cuid())
+  id        String    @id @default(cuid())
   date      DateTime
-  status    String   @default("PENDING") // PENDING, CONFIRMED, CANCELLED
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  time      String    // Added for time of day (e.g., '14:00')
+  status    String    @default("PENDING") // PENDING, CONFIRMED, CANCELLED
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
   lectureId String
-  lecture   Lecture  @relation(fields: [lectureId], references: [id])
+  lecture   Lecture   @relation(fields: [lectureId], references: [id])
   userId    String
-  user      User     @relation(fields: [userId], references: [id])
+  user      User      @relation(fields: [userId], references: [id])
+  chatRoom  ChatRoom?
 }
 
 model Account {
@@ -127,4 +135,73 @@ model Availability {
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+model ChatRoom {
+  id        String    @id @default(cuid())
+  bookingId String    @unique
+  booking   Booking   @relation(fields: [bookingId], references: [id])
+  messages  Message[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+}
+
+model Message {
+  id        String   @id @default(cuid())
+  content   String
+  senderId  String
+  sender    User     @relation(fields: [senderId], references: [id])
+  roomId    String
+  room      ChatRoom @relation(fields: [roomId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Content {
+  id          String    @id @default(cuid())
+  title       String
+  description String
+  type        String    // "PDF", "VIDEO", "SLIDES", "NOTES"
+  price       Float
+  fileUrl     String
+  thumbnailUrl String?
+  subject     String
+  tags        String    // Store as JSON string
+  downloads   Int       @default(0)
+  rating      Float     @default(0)
+  totalReviews Int      @default(0)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  tutorId     String
+  tutor       User      @relation(fields: [tutorId], references: [id])
+  purchases   ContentPurchase[]
+  reviews     Review[]
+}
+
+model ContentPurchase {
+  id        String    @id @default(cuid())
+  contentId String
+  content   Content   @relation(fields: [contentId], references: [id])
+  userId    String
+  user      User      @relation(fields: [userId], references: [id])
+  price     Float
+  createdAt DateTime  @default(now())
+}
+
+model Review {
+  id           String   @id @default(cuid())
+  reviewerId   String
+  reviewer     User     @relation("Reviewer", fields: [reviewerId], references: [id], onDelete: Cascade)
+  revieweeId   String
+  reviewee     User     @relation("Reviewee", fields: [revieweeId], references: [id], onDelete: Cascade)
+  revieweeRole String   // 'TUTOR' or 'STUDENT'
+  rating       Int      // 1-5
+  comment      String
+  createdAt    DateTime @default(now())
+  contentId    String?  // Optional, for content reviews
+  content      Content? @relation(fields: [contentId], references: [id])
+  lectureId    String?  // Optional, for lecture reviews
+  lecture      Lecture? @relation(fields: [lectureId], references: [id])
+
+  @@index([revieweeId, revieweeRole])
 } 
